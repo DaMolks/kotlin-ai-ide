@@ -1,6 +1,11 @@
 import { spawn } from 'child_process';
 import path from 'path';
 
+interface LLMStatus {
+  initialized: boolean;
+  error: string;
+}
+
 export class LLMService {
   private process: any;
   private initialized: boolean = false;
@@ -30,12 +35,16 @@ export class LLMService {
       this.initialized = true;
       console.log('CodeLlama initialized');
     } catch (error) {
-      console.error('Failed to initialize LLM:', error);
-      this.lastError = error.toString();
+      if (error instanceof Error) {
+        this.lastError = error.message;
+      } else {
+        this.lastError = String(error);
+      }
+      console.error('Failed to initialize LLM:', this.lastError);
     }
   }
 
-  getStatus(): string {
+  getStatus(): LLMStatus {
     return {
       initialized: this.initialized,
       error: this.lastError,
