@@ -1,25 +1,42 @@
 {
   "name": "kotlin-ai-ide-frontend",
   "version": "0.1.0",
-  "main": "lib/index.js",
+  "private": true,
   "dependencies": {
-    "@theia/core": "1.38.0",
-    "@theia/editor": "1.38.0",
-    "@theia/filesystem": "1.38.0",
-    "@theia/languages": "1.38.0",
-    "@theia/monaco": "1.38.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "inversify": "^5.0.1",
-    "reflect-metadata": "^0.1.13"
-  },
-  "devDependencies": {
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "typescript": "~4.5.5"
+    "@monaco-editor/react": "^4.4.6",
+    "@types/node": "^16.7.13",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "autoprefixer": "^10.4.7",
+    "lucide-react": "^0.263.1",
+    "postcss": "^8.4.14",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "tailwindcss": "^3.1.6",
+    "typescript": "^4.4.2"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
