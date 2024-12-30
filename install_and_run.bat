@@ -1,28 +1,24 @@
 @echo off
 
-:: Couleurs
-set GREEN=[92m
-set RED=[91m
-set NC=[0m
-
-echo %GREEN%Installation du projet Kotlin AI IDE%NC%
+:: Installation du projet Kotlin AI IDE
+echo Installation du projet Kotlin AI IDE
 
 :: Vérifier Node.js
 node --version >nul 2>&1
 if errorlevel 1 (
-    echo %RED%Node.js non installé%NC%
+    echo Node.js non installé
     exit /b 1
 )
 
 :: Vérifier Yarn
 yarn --version >nul 2>&1
 if errorlevel 1 (
-    echo %RED%Yarn non installé%NC%
+    echo Yarn non installé
     npm install -g yarn
 )
 
 :: Installation des dépendances
-echo %GREEN%Installation des dépendances...%NC%
+echo Installation des dépendances...
 yarn install
 
 cd backend
@@ -30,17 +26,17 @@ yarn install
 cd ..
 
 :: Build du projet
-echo %GREEN%Construction du projet...%NC%
+echo Construction du projet...
 yarn build
 cd backend
 yarn build
 cd ..
 
 :: Démarrage des services
-echo %GREEN%Démarrage des services...%NC%
+echo Démarrage des services...
 
 start "Backend" cmd /c "cd backend && yarn dev"
 start "Frontend" cmd /c "yarn start"
 
-echo %GREEN%Services démarrés !%NC%
+echo Services démarrés !
 pause
