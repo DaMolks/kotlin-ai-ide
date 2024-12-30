@@ -1,60 +1,38 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Script d'installation et de lancement global pour Windows
+:: Vérifie les prérequis
+where node >nul 2>nul
+if %errorlevel% neq 0 (
+    echo Node.js n'est pas installé. Installez Node.js.
+    exit /b 1
+)
 
-:: Couleurs
-set GREEN=[92m
-set RED=[91m
-set NC=[0m
-
-:: Fonction de log
-:log
-echo %GREEN%[KOTLIN-AI-IDE]%NC% %*
-exit /b
-
-:: Fonction d'erreur
-:error
-echo %RED%[ERREUR]%NC% %*
-exit /b
+where yarn >nul 2>nul
+if %errorlevel% neq 0 (
+    echo Yarn n'est pas installé. Installez Yarn avec : npm install -g yarn
+    exit /b 1
+)
 
 :: Installation des dépendances
-:install_dependencies
-call :log Installation des dépendances frontend...
+echo Installation des dépendances frontend...
 yarn install
 
-call :log Installation des dépendances backend...
+echo Installation des dépendances backend...
 cd backend
 yarn install
 cd ..
-exit /b
 
 :: Build du projet
-:build_project
-call :log Construction du projet...
+echo Construction du projet...
 yarn build
 cd backend
 yarn build
 cd ..
-exit /b
 
 :: Démarrage des services
-:start_services
-call :log Démarrage des services...
-
-:: Backend
 start "Backend" cmd /c "cd backend && yarn dev"
 start "Frontend" cmd /c "yarn start"
 
-call :log Services démarrés. Fermez les fenêtres pour arrêter.
+echo Services démarrés. Fermez les fenêtres pour arrêter.
 pause
-exit /b
-
-:: Fonction principale
-:main
-call :install_dependencies
-call :build_project
-call :start_services
-
-:: Exécution
-call :main
