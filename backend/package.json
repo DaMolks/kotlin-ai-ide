@@ -3,28 +3,20 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "license": "MIT",
-  "engines": {
-    "node": ">=16"
-  },
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc",
-    "dev": "nodemon src/index.ts"
+    "dev": "ts-node-dev src/index.ts"
   },
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^4.0.0",
-    "ws": "^8.0.0",
-    "body-parser": "^1.19.0",
-    "inversify": "^5.0.1",
-    "reflect-metadata": "^0.1.13"
+    "cors": "^2.8.5"
   },
   "devDependencies": {
-    "typescript": "~4.5.5",
     "@types/express": "^4.17.13",
-    "@types/ws": "^8.0.0",
     "@types/node": "^14.14.31",
-    "nodemon": "^2.0.12",
-    "ts-node": "^10.2.1"
+    "typescript": "~4.5.5",
+    "ts-node-dev": "^2.0.0"
   }
 }
