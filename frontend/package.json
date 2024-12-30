@@ -1,0 +1,25 @@
+{
+  "name": "kotlin-ai-ide-frontend",
+  "version": "0.1.0",
+  "main": "lib/index.js",
+  "dependencies": {
+    "@theia/core": "1.38.0",
+    "@theia/editor": "1.38.0",
+    "@theia/filesystem": "1.38.0",
+    "@theia/languages": "1.38.0",
+    "@theia/monaco": "1.38.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "typescript": "~4.5.5"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  }
+}
