@@ -1,42 +1,42 @@
 @echo off
 
-:: Installation du projet Kotlin AI IDE
 echo Installation du projet Kotlin AI IDE
 
-:: Vérifier Node.js
+:: Verification Node.js
 node --version >nul 2>&1
 if errorlevel 1 (
-    echo Node.js non installé
+    echo Node.js non installe
     exit /b 1
 )
 
-:: Vérifier Yarn
+:: Verification Yarn
 yarn --version >nul 2>&1
 if errorlevel 1 (
-    echo Yarn non installé
+    echo Yarn non installe
     npm install -g yarn
 )
 
-:: Installation des dépendances
-echo Installation des dépendances...
-yarn install
+:: Installation des dependances
+echo Installation des dependances...
+call yarn install
 
 cd backend
-yarn install
+call yarn install
 cd ..
 
 :: Build du projet
 echo Construction du projet...
-yarn build
+call yarn build
+
 cd backend
-yarn build
+call yarn build
 cd ..
 
-:: Démarrage des services
-echo Démarrage des services...
+:: Demarrage des services
+echo Demarrage des services...
 
 start "Backend" cmd /c "cd backend && yarn dev"
 start "Frontend" cmd /c "yarn start"
 
-echo Services démarrés !
+echo Services demarres !
 pause
