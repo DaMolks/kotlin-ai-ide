@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import Editor from './components/Editor';
 import Terminal from './components/Terminal';
 import Toolbar from './components/Toolbar';
+import FileExplorer from './components/FileExplorer';
+import LLMSuggestions from './components/LLMSuggestions';
 
 const App = () => {
   const [code, setCode] = useState(`fun main() {
     println("Hello, Kotlin!")
-}`
-  );
+}`);
   const [output, setOutput] = useState('');
 
   const handleRun = async () => {
@@ -45,13 +46,17 @@ const App = () => {
         onCompile={handleCompile}
         onSave={() => console.log('Save clicked')}
       />
-      <div className="flex-1 p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
-          <div className="h-full">
+      <div className="flex-1 p-4 flex space-x-4">
+        <div className="w-64">
+          <FileExplorer onFileSelect={(path) => console.log('Selected:', path)} />
+        </div>
+        <div className="flex-1 grid grid-cols-3 gap-4">
+          <div className="col-span-2 h-full">
             <Editor code={code} onChange={setCode} />
           </div>
           <div className="flex flex-col space-y-4">
             <Terminal output={output} />
+            <LLMSuggestions code={code} />
           </div>
         </div>
       </div>
