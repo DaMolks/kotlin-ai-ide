@@ -11,7 +11,8 @@ const llm = new LLMService();
 app.use(express.json());
 
 app.get('/llm-status', (req, res) => {
-  res.json({ status: llm.getStatus() });
+  const status = llm.getStatus();
+  res.json(status);
 });
 
 app.post('/suggest', async (req, res) => {
@@ -19,8 +20,12 @@ app.post('/suggest', async (req, res) => {
   try {
     const suggestion = await llm.getSuggestion(code);
     res.json({ suggestion });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error) {
+    let errorMessage = 'Unknown error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    res.status(500).json({ error: errorMessage });
   }
 });
 
