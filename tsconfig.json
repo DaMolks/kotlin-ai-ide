@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "rootDir": "src",
+    "module": "commonjs",
+    "target": "ES5",
+    "lib": ["ES6", "DOM"],
+    "sourceMap": true,
+    "outDir": "lib",
+    "skipLibCheck": true,
+    "jsx": "react"
+  },
+  "include": [
+    "src"
+  ]
+}
