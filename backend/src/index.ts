@@ -1,26 +1,19 @@
 import express from 'express';
-import http from 'http';
 import { Server } from 'socket.io';
-import { LLMService } from './services/llm';
-import { KotlinService } from './services/kotlin';
+import http from 'http';
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const llmService = new LLMService();
-const kotlinService = new KotlinService();
+app.use(express.json());
+
+app.post('/compile', async (req, res) => {
+  // Implémentation de la compilation
+});
 
 io.on('connection', (socket) => {
-  socket.on('prompt', async (data) => {
-    const response = await llmService.processPrompt(data);
-    socket.emit('llm-response', response);
-  });
-
-  socket.on('compile', async (data) => {
-    const result = await kotlinService.compile(data);
-    socket.emit('compile-result', result);
-  });
+  console.log('Client connected');
 });
 
 server.listen(3000, () => {
