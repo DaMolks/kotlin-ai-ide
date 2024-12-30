@@ -4,10 +4,9 @@ import Terminal from './components/Terminal';
 import Toolbar from './components/Toolbar';
 
 const App = () => {
-  const [code, setCode] = useState(
-    'fun main() {
+  const [code, setCode] = useState(`fun main() {
     println("Hello, Kotlin!")
-}'
+}`
   );
   const [output, setOutput] = useState('');
 
