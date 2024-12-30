@@ -4,7 +4,7 @@ import path from 'path';
 export class LLMService {
   private process: any;
   private initialized: boolean = false;
-  private readonly modelPath = path.join(process.cwd(), '../codellama/models/codellama-7b.Q4_K_M.gguf');
+  private lastError: string = '';
 
   constructor() {
     this.initializeLLM();
@@ -12,22 +12,34 @@ export class LLMService {
 
   private async initializeLLM() {
     try {
-      this.process = spawn('python', [
-        'main.py',
-        '--model', this.modelPath,
-        '--interactive'
-      ], {
-        cwd: path.join(process.cwd(), '../codellama')
-      });
-      
+      console.log('Starting CodeLlama...');
+      this.process = spawn('python', 
+        ['llama_cpp/example.py', '--model', 'models/codellama-7b.Q4_K_M.gguf', '--interactive'], 
+        { cwd: path.join(process.cwd(), '../codellama') }
+      );
+
       this.process.stdout.on('data', (data: Buffer) => {
         console.log('LLM Output:', data.toString());
       });
 
+      this.process.stderr.on('data', (data: Buffer) => {
+        this.lastError = data.toString();
+        console.error('LLM Error:', data.toString());
+      });
+
       this.initialized = true;
+      console.log('CodeLlama initialized');
     } catch (error) {
       console.error('Failed to initialize LLM:', error);
+      this.lastError = error.toString();
     }
+  }
+
+  getStatus(): string {
+    return {
+      initialized: this.initialized,
+      error: this.lastError,
+    };
   }
 
   async getSuggestion(code: string): Promise<string> {
