@@ -1,0 +1,44 @@
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--theia-editor-background);
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.chat-input {
+    border-top: 1px solid var(--theia-border-color);
+    padding: 1rem;
+}
+
+.chat-input textarea {
+    width: 100%;
+    resize: none;
+    padding: 0.5rem;
+    border: 1px solid var(--theia-border-color);
+    background: var(--theia-input-background);
+    color: var(--theia-input-foreground);
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.message.user {
+    background: var(--theia-button-background);
+    color: var(--theia-button-foreground);
+    margin-left: 2rem;
+}
+
+.message.ai {
+    background: var(--theia-secondaryButton-background);
+    color: var(--theia-secondaryButton-foreground);
+    margin-right: 2rem;
+}
