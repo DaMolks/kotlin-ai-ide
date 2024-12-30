@@ -5,7 +5,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import { KotlinCompiler } from './services/compiler';
 import { KotlinExecutor } from './services/executor';
-import { AIService } from './services/ai-service';
 
 const app = express();
 const server = http.createServer(app);
@@ -15,7 +14,6 @@ const io = new Server(server, {
 
 const compiler = new KotlinCompiler();
 const executor = new KotlinExecutor();
-const aiService = new AIService();
 
 app.use(express.json());
 
@@ -55,16 +53,6 @@ app.post('/run', async (req, res) => {
   }
 });
 
-app.post('/complete', async (req, res) => {
-  const { prompt } = req.body;
-  try {
-    const completion = await aiService.getCompletion(prompt);
-    res.json({ success: true, completion });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
 io.on('connection', (socket) => {
   console.log('Client connected');
 
@@ -76,11 +64,6 @@ io.on('connection', (socket) => {
   socket.on('run', async (data) => {
     const result = await executor.execute(data.filePath);
     socket.emit('run-result', result);
-  });
-
-  socket.on('complete', async (data) => {
-    const completion = await aiService.getCompletion(data.prompt);
-    socket.emit('completion-result', completion);
   });
 });
 
