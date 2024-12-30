@@ -17,6 +17,10 @@ const compiler = new KotlinCompiler();
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.json({ status: 'Server running' });
+});
+
 app.post('/compile', async (req, res) => {
   const { code } = req.body;
   const tempFile = path.join(__dirname, '../temp', `temp_${Date.now()}.kt`);
