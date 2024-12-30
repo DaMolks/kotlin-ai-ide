@@ -1,0 +1,39 @@
+.ai-suggestions-container {
+    background: var(--theia-editor-background);
+    border-left: 1px solid var(--theia-border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.suggestions-header {
+    padding: 8px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--theia-border-color);
+}
+
+.suggestions-list {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+    background: var(--theia-list-hoverBackground);
+}
+
+.ai-chat {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    background: var(--theia-editor-background);
+    z-index: 1000;
+}
