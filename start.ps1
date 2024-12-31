@@ -1,74 +1,96 @@
-# Fonction pour arrêter les processus existants
-function Stop-ExistingProcesses {
-    Write-Host "Arrêt des processus existants..."
-    Get-Process | Where-Object {$_.ProcessName -match 'node|python'} | ForEach-Object {
+$ErrorActionPreference = "Stop"
+
+function Write-ColorOutput($ForegroundColor) {
+    $fc = $host.UI.RawUI.ForegroundColor
+    $host.UI.RawUI.ForegroundColor = $ForegroundColor
+    if ($args) {
+        Write-Output $args
+    }
+    else {
+        $input | Write-Output
+    }
+    $host.UI.RawUI.ForegroundColor = $fc
+}
+
+function Stop-ProjectProcesses {
+    Write-ColorOutput Green "Arrêt des processus en cours..."
+    
+    Get-Process | Where-Object {$_.ProcessName -match 'node|python|yarn'} | ForEach-Object {
         try {
             $_.Kill()
             $_.WaitForExit()
         } catch {}
     }
+    
+    # Attendre que les ports se libèrent
+    Start-Sleep -Seconds 2
 }
 
-# Fonction pour vérifier CodeLlama
-function Initialize-CodeLlama {
-    $codeLlamaPath = Join-Path $PSScriptRoot "codellama"
+function Install-Dependencies {
+    Write-ColorOutput Green "Vérification des dépendances..."
     
-    if (-not (Test-Path $codeLlamaPath)) {
-        Write-Host "Installation de CodeLlama..."
-        git clone https://github.com/facebookresearch/codellama.git $codeLlamaPath
-    }
-
-    Push-Location $codeLlamaPath
-    if (-not (Test-Path "models")) {
-        New-Item -ItemType Directory -Force -Path "models"
-    }
-
-    $modelPath = Join-Path "models" "codellama-7b.Q4_K_M.gguf"
-    if (-not (Test-Path $modelPath)) {
-        Write-Host "Téléchargement du modèle..."
-        $modelUrl = "https://huggingface.co/TheBloke/CodeLlama-7B-GGUF/raw/main/codellama-7b.Q4_K_M.gguf"
-        Invoke-WebRequest -Uri $modelUrl -OutFile $modelPath
+    # Backend
+    if (-not (Test-Path "backend\node_modules")) {
+        Set-Location backend
+        Write-ColorOutput Yellow "Installation des dépendances backend..."
+        yarn install
+        yarn build
+        Set-Location ..
     }
     
-    # Installation des dépendances Python
-    pip install -r requirements.txt
-    Pop-Location
+    # Frontend
+    if (-not (Test-Path "frontend\node_modules")) {
+        Set-Location frontend
+        Write-ColorOutput Yellow "Installation des dépendances frontend..."
+        yarn install
+        Set-Location ..
+    }
 }
 
-# Arrêter les processus existants
-Stop-ExistingProcesses
+function Start-Services {
+    Write-ColorOutput Green "Démarrage des services..."
+    
+    # Backend
+    Set-Location backend
+    $backend = Start-Process yarn -ArgumentList "start" -NoNewWindow -PassThru
+    Set-Location ..
+    Start-Sleep -Seconds 2
+    
+    # Frontend
+    Set-Location frontend
+    $frontend = Start-Process yarn -ArgumentList "start" -NoNewWindow -PassThru
+    Set-Location ..
+    
+    return @{Backend = $backend; Frontend = $frontend}
+}
 
-# Initialiser CodeLlama
-Initialize-CodeLlama
+function Wait-ForServices($processes) {
+    Write-ColorOutput Yellow "Appuyez sur CTRL+C pour arrêter l'IDE"
+    Write-ColorOutput Green "Accédez à l'interface via: http://localhost:3000"
+    
+    try {
+        Wait-Process -Id $processes.Backend.Id
+    } catch {
+        Stop-ProjectProcesses
+    } finally {
+        Write-ColorOutput Green "Arrêt de l'IDE."
+    }
+}
 
-# Démarrer les services
-Write-Host "Démarrage des services..."
-
-# CodeLlama
-$codeLlamaPath = Join-Path $PSScriptRoot "codellama"
-$codeLlama = Start-Process python -ArgumentList "main.py", "--model", "models/codellama-7b.Q4_K_M.gguf", "--interactive" -WorkingDirectory $codeLlamaPath -PassThru -NoNewWindow
-
-# Attendre que CodeLlama démarre
-Start-Sleep -Seconds 5
-
-# Backend
-$backendPath = Join-Path $PSScriptRoot "backend"
-$backend = Start-Process yarn -ArgumentList "start" -WorkingDirectory $backendPath -PassThru -NoNewWindow
-
-# Attendre que le backend démarre
-Start-Sleep -Seconds 5
-
-# Frontend
-$frontendPath = Join-Path $PSScriptRoot "frontend"
-$frontend = Start-Process yarn -ArgumentList "start" -WorkingDirectory $frontendPath -PassThru -NoNewWindow
-
-Write-Host ""
-Write-Host "IDE démarré! Accédez à http://localhost:3000" -ForegroundColor Green
-Write-Host "Appuyez sur CTRL+C pour arrêter" -ForegroundColor Yellow
-
-# Gérer l'arrêt propre
 try {
-    Wait-Process -Id $codeLlama.Id
-} finally {
-    Stop-ExistingProcesses
+    # Nettoyage initial
+    Stop-ProjectProcesses
+    
+    # Installation/Vérification des dépendances
+    Install-Dependencies
+    
+    # Démarrage des services
+    $processes = Start-Services
+    
+    # Attente et gestion de l'arrêt
+    Wait-ForServices $processes
+} catch {
+    Write-ColorOutput Red "Erreur: $_"
+    Stop-ProjectProcesses
+    exit 1
 }
