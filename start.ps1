@@ -1,37 +1,14 @@
 function Write-ColorOutput($ForegroundColor) {
     $fc = $host.UI.RawUI.ForegroundColor
     $host.UI.RawUI.ForegroundColor = $ForegroundColor
-    if ($args) {
-        Write-Output $args
-    }
-    else {
-        $input | Write-Output
-    }
+    Write-Output $args
     $host.UI.RawUI.ForegroundColor = $fc
-}
-
-function Test-Command($command) {
-    return (Get-Command $command -ErrorAction SilentlyContinue) -ne $null
-}
-
-function Check-Prerequisites {
-    Write-ColorOutput Green \"Vérification des prérequis...\"
-    
-    if (-not (Test-Command \"node\")) {
-        Write-ColorOutput Red \"Node.js n'est pas installé. Veuillez l'installer depuis https://nodejs.org\"
-        exit 1
-    }
-    
-    if (-not (Test-Command \"npm\")) {
-        Write-ColorOutput Red \"npm n'est pas installé. Veuillez réinstaller Node.js\"
-        exit 1
-    }
 }
 
 function Stop-ProjectProcesses {
     Write-ColorOutput Green \"Arrêt des processus en cours...\"
     
-    Get-Process | Where-Object {$_.ProcessName -match 'node|python'} | ForEach-Object {
+    Get-Process | Where-Object {$_.ProcessName -match 'node|npm'} | ForEach-Object {
         try {
             $_.Kill()
             $_.WaitForExit()
@@ -49,8 +26,8 @@ function Install-Dependencies {
 ode_modules\")) {
         Set-Location backend
         Write-ColorOutput Yellow \"Installation des dépendances backend...\"
-        npm install
-        npm run build
+        & npm install
+        & npm run build
         Set-Location ..
     }
     
@@ -59,7 +36,7 @@ ode_modules\")) {
 ode_modules\")) {
         Set-Location frontend
         Write-ColorOutput Yellow \"Installation des dépendances frontend...\"
-        npm install
+        & npm install
         Set-Location ..
     }
 }
@@ -69,39 +46,31 @@ function Start-Services {
     
     # Backend
     Set-Location backend
-    $backend = Start-Process npx -ArgumentList \"nodemon\", \"dist/index.js\" -NoNewWindow -PassThru
+    Start-Process -FilePath \"npm.cmd\" -ArgumentList \"start\" -NoNewWindow
     Set-Location ..
     Start-Sleep -Seconds 2
     
     # Frontend
     Set-Location frontend
-    $frontend = Start-Process npm -ArgumentList \"start\" -NoNewWindow -PassThru
+    Start-Process -FilePath \"npm.cmd\" -ArgumentList \"start\" -NoNewWindow
     Set-Location ..
-    
-    return @{Backend = $backend; Frontend = $frontend}
-}
-
-function Wait-ForServices($processes) {
-    Write-ColorOutput Yellow \"Appuyez sur CTRL+C pour arrêter l'IDE\"
-    Write-ColorOutput Green \"Accédez à l'interface via: http://localhost:3000\"
-    
-    try {
-        Wait-Process -Id $processes.Backend.Id
-    } catch {
-        Stop-ProjectProcesses
-    } finally {
-        Write-ColorOutput Green \"Arrêt de l'IDE.\"
-    }
 }
 
 try {
-    Check-Prerequisites
     Stop-ProjectProcesses
     Install-Dependencies
-    $processes = Start-Services
-    Wait-ForServices $processes
+    Start-Services
+    
+    Write-ColorOutput Yellow \"Appuyez sur CTRL+C pour arrêter l'IDE\"
+    Write-ColorOutput Green \"Accédez à l'interface via: http://localhost:3000\"
+    
+    while ($true) {
+        Start-Sleep -Seconds 1
+    }
 } catch {
     Write-ColorOutput Red \"Erreur: $_\"
     Stop-ProjectProcesses
     exit 1
+} finally {
+    Stop-ProjectProcesses
 }`
