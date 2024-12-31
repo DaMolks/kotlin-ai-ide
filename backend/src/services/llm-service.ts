@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 
 interface LLMStatus {
   initialized: boolean;
@@ -18,19 +19,18 @@ export class LLMService {
   private async initializeLLM() {
     try {
       console.log('Starting CodeLlama...');
-      const codeLlamaPath = path.join(process.cwd(), '../codellama');
-      console.log('CodeLlama path:', codeLlamaPath);
-      
-      // Vérifier l'existence du fichier main.py
-      const mainPyPath = path.join(codeLlamaPath, 'main.py');
-      
+      const codeLlamaPath = path.resolve(process.cwd(), '../codellama/utils');
+      const modelPath = path.resolve(process.cwd(), '../codellama/models/codellama-7b.Q4_K_M.gguf');
+
+      if (!fs.existsSync(modelPath)) {
+        throw new Error(`Model not found at ${modelPath}`);
+      }
+
       this.process = spawn('python', [
-        'main.py',
-        '--model', '../models/codellama-7b.Q4_K_M.gguf',
+        path.join(codeLlamaPath, 'run_ggml.py'),
+        '--model', modelPath,
         '--interactive'
-      ], { 
-        cwd: codeLlamaPath
-      });
+      ]);
 
       this.process.stdout.on('data', (data: Buffer) => {
         console.log('LLM Output:', data.toString());
@@ -56,7 +56,7 @@ export class LLMService {
   getStatus(): LLMStatus {
     return {
       initialized: this.initialized,
-      error: this.lastError,
+      error: this.lastError
     };
   }
 
