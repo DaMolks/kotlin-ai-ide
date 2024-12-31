@@ -18,10 +18,19 @@ export class LLMService {
   private async initializeLLM() {
     try {
       console.log('Starting CodeLlama...');
-      this.process = spawn('python', 
-        ['llama_cpp/example.py', '--model', 'models/codellama-7b.Q4_K_M.gguf', '--interactive'], 
-        { cwd: path.join(process.cwd(), '../codellama') }
-      );
+      const codeLlamaPath = path.join(process.cwd(), '../codellama');
+      console.log('CodeLlama path:', codeLlamaPath);
+      
+      // Vérifier l'existence du fichier main.py
+      const mainPyPath = path.join(codeLlamaPath, 'main.py');
+      
+      this.process = spawn('python', [
+        'main.py',
+        '--model', '../models/codellama-7b.Q4_K_M.gguf',
+        '--interactive'
+      ], { 
+        cwd: codeLlamaPath
+      });
 
       this.process.stdout.on('data', (data: Buffer) => {
         console.log('LLM Output:', data.toString());
