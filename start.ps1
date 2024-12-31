@@ -14,6 +14,7 @@ if (-not (Test-Path "codellama")) {
     git clone https://github.com/facebookresearch/codellama.git
     Set-Location codellama
     python -m pip install -r requirements.txt
+    python -m pip install llama-cpp-python
     
     # Créer dossier models et télécharger le modèle
     New-Item -ItemType Directory -Force -Path models
@@ -24,6 +25,24 @@ if (-not (Test-Path "codellama")) {
     Invoke-WebRequest -Uri $modelUrl -OutFile $modelPath
     Set-Location ..
 }
+
+# Créer un script Python simple pour exécuter CodeLlama
+$pythonScript = @"
+from llama_cpp import Llama
+
+llm = Llama(model_path='models/codellama-7b.Q4_K_M.gguf')
+while True:
+    try:
+        user_input = input('> ')
+        output = llm(user_input, max_tokens=2048)
+        print(output['choices'][0]['text'])
+    except KeyboardInterrupt:
+        break
+    except Exception as e:
+        print(f'Error: {e}')
+"@
+
+Set-Content -Path "codellama/run_llama.py" -Value $pythonScript
 
 # Arrêter les processus existants
 Get-Process | Where-Object {$_.ProcessName -match 'node|npm|python'} | ForEach-Object {
@@ -46,7 +65,7 @@ Set-Location ..
 
 # Démarrer CodeLlama
 Set-Location codellama
-$codeLlama = Start-Process python -ArgumentList "utils/run_ggml.py", "--model", "models/codellama-7b.Q4_K_M.gguf", "--interactive" -NoNewWindow -PassThru
+$codeLlama = Start-Process python -ArgumentList "run_llama.py" -NoNewWindow -PassThru
 Set-Location ..
 Start-Sleep -Seconds 5
 
